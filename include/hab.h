@@ -11,7 +11,7 @@
 #include "database.h"
 
 /* Debug Flag */
-#define DEBUG 0
+#define DEBUG_MODE 0
 
 /* Version Control */
 #define MAJOR_VERSION 0
