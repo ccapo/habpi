@@ -1,6 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#define DEBUG   "  [debug]"
 #define INFO    "   [info]"
 #define NOTICE  " [notice]"
 #define WARNING "[warning]"
