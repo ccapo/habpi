@@ -59,9 +59,9 @@ int callback(void *data, int argc, char **argv, char **azColName) {
 
   for(i = 0; i < argc; i++) {
     sprintf(msg, "%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
-    logger(INFO, msg);
+    logger(DEBUG, msg);
   }
-  logger(INFO, "---");
+  logger(DEBUG, "---");
 
   return RC_OK;
 }
@@ -83,7 +83,7 @@ void insertRecord(sqlite3 *db, message_type_id_t message_type_id, char *data) {
     sqlite3_free(zErrMsg);
     logger(ERROR, msg);
   } else {
-    if(DEBUG) logger("debug", "Started transaction");
+    if(DEBUG_MODE) logger(DEBUG, "Started transaction");
   }
 
   /* Execute SQL statement */
@@ -104,6 +104,6 @@ void insertRecord(sqlite3 *db, message_type_id_t message_type_id, char *data) {
     sqlite3_free(zErrMsg);
     logger(ERROR, msg);
   } else {
-    if(DEBUG) logger("debug", "Commited transaction");
+    if(DEBUG_MODE) logger(DEBUG, "Commited transaction");
   }
 } 
