@@ -52,8 +52,8 @@ int main(int argc, char *argv[]) {
   printf("HAB Program: Running...\n");
 
   /* Print debugging message */
-  if(DEBUG) {
-    logger("debug", ">>> Debugging Mode Enabled <<<");
+  if(DEBUG_MODE) {
+    logger(DEBUG, ">>> Debugging Mode Enabled <<<");
   }
 
   logger(NOTICE, "Component Initialization: [Start]");
