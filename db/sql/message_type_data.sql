@@ -1,0 +1,15 @@
+INSERT INTO message_type (name, description) VALUES ('SYS', 'System Status');
+INSERT INTO message_type (name, description) VALUES ('GPS_LAT', 'GPS Latitude in Degrees');
+INSERT INTO message_type (name, description) VALUES ('GPS_LON', 'GPS Longitude in Degress');
+INSERT INTO message_type (name, description) VALUES ('GPS_ALT', 'GPS Altitude in km');
+INSERT INTO message_type (name, description) VALUES ('TEMP', 'Temperature in C');
+INSERT INTO message_type (name, description) VALUES ('BARO', 'Atmospheric Pressure in hPa');
+INSERT INTO message_type (name, description) VALUES ('BARO_ALT', 'Barometric Altitude in km');
+INSERT INTO message_type (name, description) VALUES ('MAGX', 'Magnetic Field X Component in microTesla');
+INSERT INTO message_type (name, description) VALUES ('MAGY', 'Magnetic Field Y Component in microTesla');
+INSERT INTO message_type (name, description) VALUES ('MAGZ', 'Magnetic Field Z Component in microTesla');
+INSERT INTO message_type (name, description) VALUES ('MAG_PITCH', 'Magnetic Pitch Angle in Degrees [-90:90]');
+INSERT INTO message_type (name, description) VALUES ('MAG_ROLL', 'Magnetic Roll Angle in Degrees [-180:180]');
+INSERT INTO message_type (name, description) VALUES ('MAG_HEADING', 'Magnetic Heading Angle in Degrees [0:360]');
+INSERT INTO message_type (name, description) VALUES ('BAT', 'Battery Status');
+INSERT INTO message_type (name, description) VALUES ('CAM', 'Camera Status');
