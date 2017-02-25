@@ -5,8 +5,8 @@
  * Running on a Raspberry Pi Zero, this program communicates with
  * and collects data from sensors, a GPS and photos from a digital camera.
  *
- * This data is recorded in a sqlite3 database, and the program's activity
- * is recorded in a log file.
+ * The sensor data is recorded in a sqlite3 database, the photos are stored
+ * in the images directory, and the program's activity is recorded in a log file.
  *
  * The GPS coordinates of the HAB, along with the sensor data and pictures
  * (depending on data transfer rate/distance from mission control) will be
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   
   /* Check for correct number of command line arguments */
   if(argc != 2) {
-    fprintf(stderr, "Usage: %s dbfile\n", argv[0]);
+    fprintf(stderr, "Usage: %s db.sqlite3\n", argv[0]);
     exit(RC_ERROR);
   }
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
   /* Print debugging message */
   if(DEBUG_MODE) {
-    logger(DEBUG, ">>> Debugging Mode Enabled <<<");
+    logger(DEBUG, ">>> Debug Mode Enabled <<<");
   }
 
   logger(NOTICE, "Begin Component Initialization");
