@@ -19,8 +19,8 @@
 
 /* Version Control */
 #define MAJOR_VERSION 0
-#define MINOR_VERSION 1
-#define REVISION_VERSION 2
+#define MINOR_VERSION 2
+#define REVISION_VERSION 0
 
 /* Event loop delay [ms] */
 #define DELAY 5000
