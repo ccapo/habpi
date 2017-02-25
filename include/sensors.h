@@ -19,6 +19,18 @@
 /* BMP180 Pin Base */
 #define BMP180_PINBASE 64
 
+/* Sensor Data Type*/
+typedef struct {
+ float temp, baro, baro_alt;
+ float magx, magy, magz;
+ float mag_pitch, mag_roll, mag_heading;
+ float gps_lat, gps_lon, gps_alt;
+ float bat_volt;
+
+} sensor_data_t;
+
+void sensors_init();
+void sensors_update();
 void gps_init();
 void gps_update(sqlite3 *db);
 void temperature_pressure_init();
