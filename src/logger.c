@@ -6,7 +6,7 @@ void logger(const char *tag, const char *message) {
   FILE *fp;
   time_t now;
   struct tm *tm;
-  char timestamp[32], msg[128];
+  char timestamp[DATA_STR_MAX], msg[SQL_STR_MAX];
 
   time(&now);
 
@@ -31,7 +31,7 @@ void logger(const char *tag, const char *message) {
     fclose(fp);
     if(strcasecmp(tag, ERROR) == 0) {
       fprintf(stderr, "Program Abort\n");
-      exit(1);
+      exit(RC_ERROR);
     }
     return;
   }
