@@ -4,7 +4,9 @@
 void sensors_init() {}
 
 /* Sensors Update */
-void sensors_update() {}
+void sensors_update(sqlite3 *db) {
+  sensor_data_t sensor_data;
+}
 
 /* GPS Initialzation */
 void gps_init() {
