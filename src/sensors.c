@@ -1,5 +1,11 @@
 #include "habpi.h"
 
+/* Sensors Initialization */
+void sensors_init() {}
+
+/* Sensors Update */
+void sensors_update() {}
+
 /* GPS Initialzation */
 void gps_init() {
   logger(INFO, "GPS Initialized");
