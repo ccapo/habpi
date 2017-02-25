@@ -26,7 +26,6 @@ typedef struct {
  float mag_pitch, mag_roll, mag_heading;
  float gps_lat, gps_lon, gps_alt;
  float bat_volt;
-
 } sensor_data_t;
 
 void sensors_init();
