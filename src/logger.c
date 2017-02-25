@@ -29,7 +29,7 @@ void logger(const char *tag, const char *message) {
     sprintf(msg, "%s %s: %s\n", timestamp, tag, message);
     fputs(msg, fp);
     fclose(fp);
-    if(strcasecmp(tag, "error") == 0) exit(1);
+    if(strcasecmp(tag, ERROR) == 0) exit(1);
     return;
   }
 

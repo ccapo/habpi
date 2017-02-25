@@ -59,9 +59,9 @@ int callback(void *data, int argc, char **argv, char **azColName) {
 
   for(i = 0; i < argc; i++) {
     sprintf(msg, "%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
-    logger(INFO, msg);
+    logger(DEBUG, msg);
   }
-  logger(INFO, "---");
+  logger(DEBUG, "---");
 
   return RC_OK;
 }
