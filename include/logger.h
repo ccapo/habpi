@@ -14,6 +14,7 @@
 /* Keeps track of whether the log file exists */
 extern int log_file_exists;
 
+/* Logging function */
 void logger(const char *tag, const char *message);
 
 #endif
