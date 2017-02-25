@@ -2,7 +2,7 @@
 /*
  * HABPi Code
  *
- * Running a Raspberry Pi Zero, this program communicates with
+ * Running on a Raspberry Pi Zero, this program communicates with
  * and collects data from sensors, a GPS and photos from a digital camera.
  * This data is recorded in a sqlite3 database, and the program's activity
  * is recorded in a log file.
