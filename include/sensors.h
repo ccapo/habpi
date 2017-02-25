@@ -29,7 +29,7 @@ typedef struct {
 } sensor_data_t;
 
 void sensors_init();
-void sensors_update();
+void sensors_update(sqlite3 *db);
 void gps_init();
 void gps_update(sqlite3 *db);
 void temperature_pressure_init();
@@ -39,6 +39,6 @@ void magnetometer_update(sqlite3 *db);
 void camera_init();
 void camera_update(sqlite3 *db);
 void radio_init();
-void radio_update(sqlite3 *db);
+void radio_update(sensor_data_t sensor_data);
 
 #endif
