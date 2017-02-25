@@ -22,16 +22,16 @@ HEADERS = $(wildcard $(INCDIR)/*.h)
 
 OBJECTS = $(SOURCES:.c=.o)
 
-all: hab
+all: habpi
 
-hab: $(HEADERS) $(OBJECTS)
+habpi: $(HEADERS) $(OBJECTS)
 	$Q echo [Link] $@
 	$Q $(CC) $(CFLAGS) $(OBJECTS) -o $@ $(LFLAGS)
 	$Q rm -f $(OBJECTS)
 
 clean:
 	$Q echo "[Clean]"
-	$Q rm -f $(OBJECTS) hab log/*.log
+	$Q rm -f $(OBJECTS) habpi log/*.log
 
 depend:
 	makedepend -Y $(SOURCES)

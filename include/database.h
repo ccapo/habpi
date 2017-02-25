@@ -1,3 +1,6 @@
+#ifndef DATABASE_H
+#define DATABASE_H
+
 /* Message Type ID */
 typedef enum {
   MSG_NONE = 0,
@@ -19,6 +22,10 @@ typedef enum {
   NMSG = 16
 } message_type_id_t;
 
+/* Maximum length of data string in DB */
+#define DATA_STR_MAX 32
+
+/* Maximum length of sql string */
 #define SQL_STR_MAX 128
 
 /* Connect to sqlite3 DB */
@@ -32,3 +39,5 @@ int callback(void *data, int argc, char **argv, char **azColName);
 
 /* Insert data into sqlite3 DB */
 void insertRecord(sqlite3 *db, message_type_id_t message_type_id, char *data);
+
+#endif

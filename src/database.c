@@ -1,4 +1,4 @@
-#include "hab.h"
+#include "habpi.h"
 
 /* Message Type */
 static char *message_type[NMSG] = {
@@ -23,11 +23,11 @@ static char *message_type[NMSG] = {
 /* Connect to sqlite3 DB */
 void connectDB(sqlite3 **db, char *dbName) {
   int rc;
-  char msg[128];
+  char msg[DATA_STR_MAX];
 
   /* Connect to database */
   rc = sqlite3_open(dbName, db);
-  if( rc != SQLITE_OK ) {
+  if(rc != SQLITE_OK) {
     sprintf(msg, "Can not open database: %s", sqlite3_errmsg(*db));
     logger(ERROR, msg);
   } else {
@@ -39,11 +39,11 @@ void connectDB(sqlite3 **db, char *dbName) {
 /* Disconnect from sqlite3 DB */
 void disconnectDB(sqlite3 *db, char *dbName) {
   int rc;
-  char msg[128];
+  char msg[DATA_STR_MAX];
 
   /* Disconnect from database */
   rc = sqlite3_close(db);
-  if( rc != SQLITE_OK ) {
+  if(rc != SQLITE_OK) {
     sprintf(msg, "Can not close database: %s", sqlite3_errmsg(db));
     logger(ERROR, msg);
   } else {
@@ -55,7 +55,7 @@ void disconnectDB(sqlite3 *db, char *dbName) {
 /* Callback function passed to sqlite3_exec */
 int callback(void *data, int argc, char **argv, char **azColName) {
   int i;
-  char msg[128];
+  char msg[DATA_STR_MAX];
 
   for(i = 0; i < argc; i++) {
     sprintf(msg, "%s = %s", azColName[i], argv[i] ? argv[i] : "NULL");
@@ -70,25 +70,25 @@ int callback(void *data, int argc, char **argv, char **azColName) {
 void insertRecord(sqlite3 *db, message_type_id_t message_type_id, char *data) {
   int rc;
   char *zErrMsg = 0;
-  char sql[SQL_STR_MAX];
-  char msg[128];
+  char sql[SQL_STR_MAX], msg[DATA_STR_MAX];
 
   /* Create SQL statement */
   sprintf(sql, "INSERT INTO message (message_type_id, message) VALUES (%d, '%s');", message_type_id, data);
+  if(DEBUG_MODE) logger(DEBUG, sql);
 
   /* Start Transaction */
   rc = sqlite3_exec(db, "BEGIN", 0, 0, 0);
-  if( rc != SQLITE_OK ) {
+  if(rc != SQLITE_OK) {
     sprintf(msg, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     logger(ERROR, msg);
   } else {
-    if(DEBUG) logger("debug", "Started transaction");
+    if(DEBUG_MODE) logger(DEBUG, "Started transaction");
   }
 
   /* Execute SQL statement */
   rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
-  if( rc != SQLITE_OK ) {
+  if(rc != SQLITE_OK) {
     sprintf(msg, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     logger(ERROR, msg);
@@ -99,11 +99,11 @@ void insertRecord(sqlite3 *db, message_type_id_t message_type_id, char *data) {
 
   /* End Transaction */
   rc = sqlite3_exec(db, "COMMIT", 0, 0, 0);
-  if( rc != SQLITE_OK ) {
+  if(rc != SQLITE_OK) {
     sprintf(msg, "SQL error: %s", zErrMsg);
     sqlite3_free(zErrMsg);
     logger(ERROR, msg);
   } else {
-    if(DEBUG) logger("debug", "Commited transaction");
+    if(DEBUG_MODE) logger(DEBUG, "Commited transaction");
   }
 } 
