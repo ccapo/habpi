@@ -72,16 +72,6 @@ void magnetometer_update(sqlite3 *db) {
   logger(INFO, "Magnetometer Sensor Update");
 }
 
-/* Radio Initialzation */
-void radio_init() {
-  logger(INFO, "Radio Initialized");
-}
-
-/* Radio Update */
-void radio_update(sqlite3 *db) {
-  logger(INFO, "Radio Update");
-}
-
 /* Camera Initialzation */
 void camera_init() {
   logger(INFO, "Camera Initialized");
@@ -90,4 +80,14 @@ void camera_init() {
 /* Camera Update */
 void camera_update(sqlite3 *db) {
   logger(INFO, "Camera Update");
+}
+
+/* Radio Initialzation */
+void radio_init() {
+  logger(INFO, "Radio Initialized");
+}
+
+/* Radio Update */
+void radio_update(sensor_data_t sensor_data) {
+  logger(INFO, "Radio Update");
 }
