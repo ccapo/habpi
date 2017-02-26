@@ -132,7 +132,7 @@ void magnetometer_update(sqlite3 *db, sensor_data_t *sensor_data) {
   /* Store Magnetometer/Compass Data */
   sensor_data->magx = 4.50;
   sensor_data->magy = 80.0;
-  sensor_data->magx = 15.0;
+  sensor_data->magz = 15.0;
   sensor_data->mag_pitch = 45.0;
   sensor_data->mag_roll = -80.0;
   sensor_data->mag_heading = 150.0;
