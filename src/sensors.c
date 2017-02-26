@@ -55,7 +55,7 @@ void battery_init() {
 /* Battery Update */
 void battery_update(sqlite3 *db, sensor_data_t *sensor_data) {
   /* Store Battery Data */
-  *sensor_data->bat_volt = 3.9;
+  sensor_data->bat_volt = 3.9;
   logger(INFO, "Battery Sensor Update");
 }
 
@@ -67,9 +67,9 @@ void gps_init() {
 /* GPS Update */
 void gps_update(sqlite3 *db, sensor_data_t *sensor_data) {
   /* Store GPS Data */
-  *sensor_data->gps_lat = 45.0;
-  *sensor_data->gps_lon = -80.0;
-  *sensor_data->gps_alt = 1500.0;
+  sensor_data->gps_lat = 45.0;
+  sensor_data->gps_lon = -80.0;
+  sensor_data->gps_alt = 1500.0;
   logger(INFO, "GPS Update");
 }
 
@@ -102,9 +102,9 @@ void temperature_pressure_update(sqlite3 *db, sensor_data_t *sensor_data) {
   }
 
   /* Store Temperature, Pressure and Altitude Data */
-  *sensor_data->temp = t;
-  *sensor_data->baro = p;
-  *sensor_data->baro_alt = a;
+  sensor_data->temp = t;
+  sensor_data->baro = p;
+  sensor_data->baro_alt = a;
 
   /* Set message type, message data and insert record into DB */
   message_type_id = MSG_TEMP;
@@ -130,12 +130,12 @@ void magnetometer_init() {
 /* Magnetometer Sensor Update */
 void magnetometer_update(sqlite3 *db, sensor_data_t *sensor_data) {
   /* Store Magnetometer/Compass Data */
-  *sensor_data->magx = 4.50;
-  *sensor_data->magy = 80.0;
-  *sensor_data->magx = 15.0;
-  *sensor_data->mag_pitch = 45.0;
-  *sensor_data->mag_roll = -80.0;
-  *sensor_data->mag_heading = 150.0;
+  sensor_data->magx = 4.50;
+  sensor_data->magy = 80.0;
+  sensor_data->magx = 15.0;
+  sensor_data->mag_pitch = 45.0;
+  sensor_data->mag_roll = -80.0;
+  sensor_data->mag_heading = 150.0;
   logger(INFO, "Magnetometer Sensor Update");
 }
 
@@ -147,7 +147,7 @@ void camera_init() {
 /* Camera Update */
 void camera_update(sensor_data_t *sensor_data) {
   /* Store image filename */
-  sprintf(*sensor_data->image_filename, "images/image_%06d.png", ++image_number);
+  sprintf(sensor_data->image_filename, "images/image_%06d.png", ++image_number);
   logger(INFO, "Camera Update");
 }
 

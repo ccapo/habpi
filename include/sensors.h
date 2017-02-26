@@ -29,7 +29,7 @@ typedef struct {
  float mag_pitch, mag_roll, mag_heading;
  float gps_lat, gps_lon, gps_alt;
  float bat_volt;
- char img_filename[STR_MAX];
+ char image_filename[STR_MAX];
 } sensor_data_t;
 
 /* The camera image number */
