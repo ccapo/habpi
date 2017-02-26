@@ -25,9 +25,6 @@
 /* Event loop delay [ms] */
 #define DELAY 5000
 
-/* Maximum length of DB filename */
-#define STR_MAX 64
-
 /* Return Codes */
 enum {
   RC_OK = 0,

@@ -19,6 +19,9 @@
 /* BMP180 Pin Base */
 #define BMP180_PINBASE 64
 
+/* Maximum length of a filename */
+#define STR_MAX 64
+
 /* Sensor Data Type*/
 typedef struct {
  float temp, baro, baro_alt;
