@@ -26,19 +26,52 @@ typedef struct {
  float mag_pitch, mag_roll, mag_heading;
  float gps_lat, gps_lon, gps_alt;
  float bat_volt;
+ char img_filename[STR_MAX];
 } sensor_data_t;
 
+/* The camera image number */
+extern int image_number;
+
+/* Wrapper for Sensors Initializaton */
 void sensors_init();
+
+/* Wrapper for Sensors Update */
 void sensors_update(sqlite3 *db);
+
+/* Battery Sensor Initialization */
+void battery_init();
+
+/* Battery Sensor Update */
+void battery_update(sqlite3 *db, sensor_data_t *sensor_data);
+
+/* GPS Initialization */
 void gps_init();
-void gps_update(sqlite3 *db);
+
+/* GPS Update */
+void gps_update(sqlite3 *db, sensor_data_t *sensor_data);
+
+/* Temperature and Pressure Sensor Initialization */
 void temperature_pressure_init();
-void temperature_pressure_update(sqlite3 *db);
+
+/* Temperature and Pressure Sensor Update */
+void temperature_pressure_update(sqlite3 *db, sensor_data_t *sensor_data);
+
+/* Magnetometer Sensor Initialization */
 void magnetometer_init();
-void magnetometer_update(sqlite3 *db);
+
+/* Magnetometer Sensor Update */
+void magnetometer_update(sqlite3 *db, sensor_data_t *sensor_data);
+
+/* Camera Initialization */
 void camera_init();
-void camera_update(sqlite3 *db);
+
+/* Camera Update */
+void camera_update(sensor_data_t *sensor_data);
+
+/* Radio Initialization */
 void radio_init();
+
+/* Radio Update */
 void radio_update(sensor_data_t sensor_data);
 
 #endif

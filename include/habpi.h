@@ -26,7 +26,7 @@
 #define DELAY 5000
 
 /* Maximum length of DB filename */
-#define DB_STR_MAX 64
+#define STR_MAX 64
 
 /* Return Codes */
 enum {

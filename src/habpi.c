@@ -17,7 +17,7 @@
  */
 int main(int argc, char *argv[]) {
   sqlite3 *db;
-  char dbName[DB_STR_MAX], msg[DATA_STR_MAX];
+  char dbName[STR_MAX], msg[DATA_STR_MAX];
   
   /* Check for correct number of command line arguments */
   if(argc != 2) {
@@ -26,8 +26,8 @@ int main(int argc, char *argv[]) {
   }
 
   /* Store database name */
-  strncpy(dbName, argv[1], DB_STR_MAX - 1);
-  dbName[DB_STR_MAX - 1] = '\0';
+  strncpy(dbName, argv[1], STR_MAX - 1);
+  dbName[STR_MAX - 1] = '\0';
 
   /* Print Program Header */
   logger(INFO, "============================");
@@ -54,20 +54,8 @@ int main(int argc, char *argv[]) {
   wiringPiSetupGpio();
   logger(INFO, "WiringPi Initialization Complete");
 
-  /* Initialize GPS */
-  gps_init();
-
-  /* Initialize Temperature and Pressure Sensor */
-  temperature_pressure_init();
-  
-  /* Initialize Magnetometer Sensor */
-  magnetometer_init();
-  
-  /* Initialize Camera */
-  camera_init();
-  
-  /* Initialize Radio */
-  radio_init();
+  /* Sensors Initialization */
+  sensors_init();
 
   logger(NOTICE, "Finished Component Initialization");
   
@@ -75,20 +63,8 @@ int main(int argc, char *argv[]) {
 
   /* Loop indefinitely */
   while(TRUE) {
-    /* Update GPS */
-    gps_update(db);
-
-    /* Update Temperature and Pressure Sensor */
-    temperature_pressure_update(db);
-  
-    /* Update Magnetometer Sensor */
-    magnetometer_update(db);
-  
-    /* Update Camera */
-    camera_update(db);
-  
-    /* Update Radio */
-    radio_update(db);
+    /* Update Sensors */
+    sensors_update(db);
 
     /* Sleep for DELAY milliseconds */
     delay(DELAY);
