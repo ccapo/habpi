@@ -168,7 +168,7 @@ void radio_update(sensor_data_t sensor_data) {
     logger(DEBUG, msg);
     sprintf(msg, "[TPA]: %f,%f,%f", sensor_data.temp, sensor_data.baro, sensor_data.baro_alt);
     logger(DEBUG, msg);
-    sprintf(msg, "[MAG]: %f,4(%f,)%f", sensor_data.magx, sensor_data.magy, sensor_data.magz, sensor_data.mag_pitch, sensor_data.mag_roll, sensor_data.mag_heading);
+    sprintf(msg, "[MAG]: %f,%f,%f,%f,%f,%f", sensor_data.magx, sensor_data.magy, sensor_data.magz, sensor_data.mag_pitch, sensor_data.mag_roll, sensor_data.mag_heading);
     logger(DEBUG, msg);
     sprintf(msg, "[CAM]: %s", sensor_data.image_filename);
     logger(DEBUG, msg);
