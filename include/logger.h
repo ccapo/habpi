@@ -2,11 +2,12 @@
 #define LOGGER_H
 
 /* Logging Tags */
-#define DEBUG   "  [debug]"
-#define INFO    "   [info]"
-#define NOTICE  " [notice]"
+#define DEBUG   "[debug]"
+#define INFO    "[info]"
+#define NOTICE  "[notice]"
+#define ALERT   "[alert]"
 #define WARNING "[warning]"
-#define ERROR   "  [error]"
+#define ERROR   "[error]"
 
 /* Messages will be appended to this file */
 #define LOGFILE	"log/habpi.log"
