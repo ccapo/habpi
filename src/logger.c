@@ -29,7 +29,7 @@ void logger(const char *tag, const char *message) {
     sprintf(timestamp, "%4d-%02d-%02d %02d:%02d:%02d", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
     
     /* Create logging record with timestamp, tag and message content */
-    sprintf(msg, "%s %s: %s\n", timestamp, tag, message);
+    sprintf(msg, "%s - %s: %s\n", timestamp, tag, message);
     fputs(msg, fp);
     
     /* Close log file */
