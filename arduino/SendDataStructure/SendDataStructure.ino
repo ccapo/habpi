@@ -18,6 +18,7 @@
  */
 
 #include <XBee.h>
+#include <SoftwareSerial.h>
 
 /*
  This example is for Series 1 (10C8 or later firmware) or Series 2 XBee  radios.
@@ -28,10 +29,7 @@
 
 //Configuration for the Example:
 #define COORDINATOR_SH 0x0013A200
-#define COORDINATOR_SL 0x40BF1B18
-
-#define STATE 1 /* State: 0: transmit
-                          1: receieve */
+#define COORDINATOR_SL 0x40F32EB0
 
 //Example Data Structure to be used in this example.
 typedef struct XBeeStruct {
@@ -47,38 +45,60 @@ XBee xbee = XBee();
 
 // 64-bit addressing: This is the SH + SL address of remote XBee
 XBeeAddress64 addr64 = XBeeAddress64(COORDINATOR_SH, COORDINATOR_SL);
-// unless you have MY on the receiving radio set to FFFF, this will be received as a RX16 packet
-Tx64Request tx = Tx64Request(addr64, (uint8_t *)&XBeeData, sizeof(XBeeDataStruct));
+ZBTxRequest zbTx = ZBTxRequest(addr64, (uint8_t *)&XBeeData, sizeof(XBeeDataStruct));
+ZBTxStatusResponse txStatus = ZBTxStatusResponse();
 
-TxStatusResponse txStatus = TxStatusResponse();
+// Define NewSoftSerial TX/RX pins
+// Connect Arduino pin 8 to TX of usb-serial device
+uint8_t ssRX = 10;
+// Connect Arduino pin 9 to RX of usb-serial device
+uint8_t ssTX = 11;
 
-//Response Handler
-XBeeResponse response = XBeeResponse();
-// create reusable response objects for responses we expect to handle 
-Rx16Response rx16 = Rx16Response();
-Rx64Response rx64 = Rx64Response();
+// Remember to connect all devices to a common Ground: XBee, Arduino and USB-Serial device
+SoftwareSerial softSerial(ssRX, ssTX);
 
 //Receieve Variables
-uint8_t* data = 0;
+uint8_t *data = 0;
 int len = 0;
+int counter = 0;
+
+int statusLed = 13;
+int errorLed = 13;
+
+void flashLed(int pin, int times, int wait) {
+  for (int i = 0; i < times; i++) {
+    digitalWrite(pin, HIGH);
+    delay(wait);
+    digitalWrite(pin, LOW);
+
+    if (i + 1 < times) {
+      delay(wait);
+    }
+  }
+}
 
 void setup() {
+  pinMode(statusLed, OUTPUT);
+  pinMode(errorLed, OUTPUT);
+  
   // initialize usb serial(leonardo) communications at 9600 bps
   Serial.begin(9600);
-  // initialize external serial(leonardo) communications at 9600 bps
-  Serial1.begin(9600);
-  xbee.setSerial(Serial1);
+
+  // Initialize XBee
+  softSerial.begin(9600);
+  xbee.setSerial(softSerial);
   delay(5000); //Wait for Xbee to fully initalize
+  Serial.println(F("Ready to Send"));  
 }
 
 
 void ReadData() {
   //The Example will grab the analog value off of Pin A5 and save it as both int and float.
-  float pin5f = analogRead(5);
+  float pin5f = M_PI; //analogRead(5);
   int pin5i = pin5f;
 
   //update data
-  XBeeData.val1 = pin5i;
+  XBeeData.val1 = ++counter;
   XBeeData.val2 = pin5f;
 }
 
@@ -94,66 +114,25 @@ void PrintData() {
 void SendData() {
   xbee.getNextFrameId();
   Serial.println("Sending data over XBee");
-  xbee.send(tx);
+  xbee.send(zbTx);
   Serial.println("Checking for Status Response");
 
   if (xbee.readPacket(5000)) {
     if (xbee.getResponse().getApiId() == ZB_TX_STATUS_RESPONSE) {
       xbee.getResponse().getZBTxStatusResponse(txStatus);
       Serial.println("Received Response");
-      if ( txStatus.getStatus() == SUCCESS ) {
-        Serial.println("Successful Sent");
+      if ( txStatus.getDeliveryStatus() == SUCCESS ) {
+        Serial.println("Successfully Sent");
+        flashLed(statusLed, 5, 50);
       } 
       else {
         Serial.println("Failure Send, Check Remote Unit");
+        flashLed(errorLed, 3, 500);
       }
     } 
     else {
       Serial.println("[Error]: No Response");
-    }
-  } 
-  else {
-    if (xbee.getResponse().isError()) {
-      Serial.print("[Error]: Reading Packet: ");
-      Serial.println(xbee.getResponse().getErrorCode());
-    } 
-    else {
-      // local XBee did not provide a timely TX Status Response.  Radio is not configured properly or connected.
-      Serial.println("[Error]: No Response Status Provided, Reconfigure/Reset XBee");
-    }
-  }
-}
-
-void ReceiveData() {
-  xbee.readPacket();
-  
-  if (xbee.getResponse().isAvailable()) {
-    if (xbee.getResponse().getApiId() == RX_16_RESPONSE || xbee.getResponse().getApiId() == RX_64_RESPONSE) {
-      //Serial.println("Received Response");
-
-      Serial.print("Packet Info:");
-      Serial.print("\tType = ");
-      if (xbee.getResponse().getApiId() == RX_16_RESPONSE) {
-        xbee.getResponse().getRx16Response(rx16);
-        data = rx16.getData();
-        len = rx16.getDataLength();
-        Serial.print("RX16");
-      } 
-      else {
-        xbee.getResponse().getRx64Response(rx64);
-        data = rx64.getData();
-        len = rx64.getDataLength();
-        Serial.print("RX64");
-      }
-
-      Serial.print("\tSize = ");
-      Serial.println(len);
-      XBeeData = (XBeeDataStruct &)*data;
-      //send the new data out to test
-      //SendData();
-    } 
-    else {
-      Serial.println("[Error]: Not The Correct Response");
+      flashLed(errorLed, 5, 500);
     }
   } 
   else {
@@ -169,15 +148,8 @@ void ReceiveData() {
 }
 
 void loop() {
-  if(STATE == 0) { //transmit
-    ReadData();
-    PrintData();
-    SendData();
-  } 
-  else {
-    ReceiveData();
-    PrintData();
-  }
+  ReadData();
+  PrintData();
+  SendData();
   delay(5000);
 }
-

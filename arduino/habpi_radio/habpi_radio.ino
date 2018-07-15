@@ -32,32 +32,57 @@
 // EEPROM Memory Location
 #define EEPROM_ADDRESS 0
 
-// Number of states in the FSM
-#define NUMBER_OF_STATES 3
-
 // Address of Arduino Pro Mini
 #define I2C_SLAVE_ADDRESS 0x04
 
 // Maximum Packet Size
 #define MAX_PACKET 100
 
+#define rxFault 0x80
+#define txFault 0x40
+#define txRequest 0x20
+
+struct {
+  byte volatile command;
+  byte volatile control; // rxFault:txFault:0:0:0:0:0:0
+  float volatile latitude;
+  float volatile longitude;
+  float volatile altitude;
+  float volatile speed;
+  float volatile direction;
+  float volatile heading;
+  float volatile pitch;
+  float volatile roll;
+  float volatile temperature;
+  float volatile pressure;
+  float volatile height;
+} commsTable;
+
+byte volatile txTable[32];   // prepare data for sending over I2C
+
 enum {
   SENSOR_DATA = 0,
   IMAGE_DATA = 1
 };
 
-SoftwareSerial softserial(10, 11); // RX, TX
+// Define SoftwareSerial TX/RX pins
+// Connect Arduino pin 10 to TX of XBee
+uint8_t ssRX = 10;
+// Connect Arduino pin 11 to RX of XBee
+uint8_t ssTX = 11;
+// Remember to connect all devices to a common Ground: XBee and Arduino
+SoftwareSerial softSerial(ssRX, ssTX);
 
 // Packet Format
 typedef struct PACKET {
   char text[MAX_PACKET];
   uint8_t length;
-  byte msg_type, msg_index, msg_total;
+  int msg_type, msg_index, msg_total;
 } Packet;
 
 // Message Format
 typedef struct MESSAGE {
-  byte msg_type, msg_index, msg_total;
+  int msg_type, msg_index, msg_total;
   float temp, baro, baro_alt;
   float magx, magy, magz;
   float mag_pitch, mag_roll, mag_heading;
@@ -82,15 +107,19 @@ XBee xbee = XBee();
 // XBee payload
 uint8_t payload[MAX_PACKET] = { 0 };
 
-// SH + SL Address of receiving XBee
-XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x40F32EA5);
+// MAC (SH + SL) Address of Station Radio
+#define STATION_SH 0x0013A200
+#define STATION_SL 0x40F32EB0
+
+// Address of receiving XBee
+XBeeAddress64 addr64 = XBeeAddress64(STATION_SH, STATION_SL);
 ZBTxRequest zbTx = ZBTxRequest(addr64, payload, sizeof(payload));
 ZBTxStatusResponse txStatus = ZBTxStatusResponse();
 
 // Counters
 long interval = 10;
 long counter = 1;
-byte msgType = 0;
+int msgType = 0;
 long nerrors = 0;
 
 // Flash LED pin n times with wait delays between each flash
@@ -107,7 +136,7 @@ void flashLed(int pin, int n, int wait) {
 }
 
 // State flag
-byte state = 0;
+byte volatile state = 0;
 
 // Send state function
 void send() {
@@ -155,7 +184,7 @@ void send() {
 
     // after sending a tx request, we expect a status response
     // wait up to half second for the status response
-    if (xbee.readPacket(500)) {
+    if (xbee.readPacket(5000)) {
       // got a response, and should be a znet tx status              
       if (xbee.getResponse().getApiId() == ZB_TX_STATUS_RESPONSE) {
         xbee.getResponse().getZBTxStatusResponse(txStatus);
@@ -215,7 +244,7 @@ void emergency() {
 
   // after sending a tx request, we expect a status response
   // wait up to half second for the status response
-  if (xbee.readPacket(500)) {
+  if (xbee.readPacket(5000)) {
     // got a response, and should be a znet tx status              
     if (xbee.getResponse().getApiId() == ZB_TX_STATUS_RESPONSE) {
       xbee.getResponse().getZBTxStatusResponse(txStatus);
@@ -323,12 +352,12 @@ void setup() {
   i2cInit();
 
   // Initialize XBee
-  softserial.begin(9600);
-  xbee.setSerial(softserial);
+  softSerial.begin(9600);
+  xbee.setSerial(softSerial);
+
+  delay(5000);
 
   Serial.println(F("HABPI Radio Setup Complete"));
-
-  delay(1000);
 }
 
 // Loop
