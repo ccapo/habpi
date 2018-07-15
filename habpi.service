@@ -1,0 +1,16 @@
+# HABPi Service
+# =======================
+#
+[Unit]
+Description=HABPi
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/home/pi/habpi/HABPi
+KillMode=mixed
+RestartSec=5
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
