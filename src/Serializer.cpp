@@ -32,11 +32,11 @@ void Serializer::serialize(sensor_msg_t *msg, uint8_t *data) {
   q++;
   *q = msg->gps_alt;
   q++;
-  *q = msg->gps_spd;
+  *q = msg->gps_gspd;
   q++;
   *q = msg->gps_dir;
   q++;
-  *q = msg->gps_cli;
+  *q = msg->gps_vspd;
   q++;
 
   // AHRS
@@ -119,11 +119,11 @@ void Serializer::deserialize(uint8_t *data, sensor_msg_t *msg) {
   q++;
   msg->gps_alt = *q;
   q++;
-  msg->gps_spd = *q;
+  msg->gps_gspd = *q;
   q++;
   msg->gps_dir = *q;
   q++;
-  msg->gps_cli = *q;
+  msg->gps_vspd = *q;
   q++;
 
   // AHRS
@@ -194,8 +194,8 @@ void Serializer::print(sensor_msg_t msg) {
   std::cout << "lon         = " << msg.gps_lon << std::endl;
   std::cout << "alt         = " << msg.gps_alt << std::endl;
   std::cout << "dir         = " << msg.gps_dir << std::endl;
-  std::cout << "spd         = " << msg.gps_spd << std::endl;
-  std::cout << "cli         = " << msg.gps_cli << std::endl;
+  std::cout << "gspd        = " << msg.gps_gspd << std::endl;
+  std::cout << "vspd        = " << msg.gps_vspd << std::endl;
 
   // AHRS
   std::cout << "AHRS" << std::endl;

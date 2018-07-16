@@ -15,7 +15,7 @@ struct sensor_msg_t {
   
   // GPS Data
   uint8_t gps_nsats, gps_status, gps_mode;
-  float gps_lat, gps_lon, gps_alt, gps_spd, gps_dir, gps_cli;
+  float gps_lat, gps_lon, gps_alt, gps_gspd, gps_dir, gps_vspd;
   
   // MPL3115A2 Data
   float mpl_temp, mpl_pres, mpl_alt;
