@@ -40,6 +40,15 @@ struct image_msg_t {
   uint16_t img_id, img_chunk_id, img_nchunks, img_w, img_h;
 };
 
+// Battery message
+struct battery_msg_t {
+  // Message Type
+  uint8_t type;
+  
+  // Battery Data
+  float bat_rpi, bat_ard;
+};
+
 class Serializer {
 public:
   // Constructor

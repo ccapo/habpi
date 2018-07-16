@@ -1,6 +1,8 @@
 /**
  * Wrapper for libgpsmm
  *
+ * Ensure TX and RX pins are connected to the RPi UART RX and TX pins, respectively.
+ *
  * Written By: Chris Capobianco
  * Date: 2018-06-05
  */

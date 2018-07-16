@@ -24,7 +24,7 @@ SPIOBJS = $(SRCDIR)/spi_bus.o
 
 AHRSOBJS = $(SRCDIR)/Madgwick.o $(SRCDIR)/Mahony.o $(SRCDIR)/FXOS8700.o $(SRCDIR)/FXAS21002C.o
 
-CALOBJS = $(AHRSOBJS) $(SRCDIR)/test/AHRS_Calibration.o
+CALOBJS = $(AHRSOBJS) $(SRCDIR)/calibration/AHRS_Calibration.o
 
 FUSOBJS = $(AHRSOBJS) $(SRCDIR)/test/AHRS_Fusion.o
 

@@ -3,6 +3,8 @@
 #include "FXOS8700.h"
 #include "FXAS21002C.h"
 
+const std::string I2CPath = "/dev/i2c-1";
+
 int main() {
   // Assign a unique ID to this sensor at the same time
   FXOS8700 accelmag = FXOS8700(0x8700A, 0x8700B);
@@ -14,7 +16,7 @@ int main() {
   std::cout << "AHRS Calibration" << std::endl;
   
   // Connect to I2C
-  i2c.open(I2C_DEVICE);
+  i2c.open(I2CPath);
 
   // Initialize the accel and mag sensor
   if(!accelmag.begin(ACCEL_RANGE_2G, i2c)) {

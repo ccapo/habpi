@@ -190,6 +190,15 @@ struct sensor_msg_t {
   float bat_rpi, bat_ard;
 } sensorMsg;
 
+// Battery message
+struct battery_msg_t {
+  // Message Type
+  uint8_t type;
+  
+  // Battery Data
+  float bat_rpi, bat_ard;
+} batteryMsg;
+
 // Setup function
 void setup(void) {
   //Serial.begin(115200);
@@ -257,6 +266,9 @@ void setup(void) {
 
   // Prepare and send WR command
   prepareAtCommand(atWR, NULL);
+
+  // Set battery message type
+  batteryMsg.type = BATTERY;
 
   //Serial.println(F("Ready"));
 }
