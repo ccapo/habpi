@@ -14,11 +14,21 @@
 #include <cstring>
 #include <cmath>
 
-//#define STB_IMAGE_IMPLEMENTATION
-//#include "stb_image.h"
+#include "Serializer.h"
 
-//#define STB_IMAGE_WRITE_IMPLEMENTATION
-//#include "stb_image_write.h"
+// RGB values
+struct rgb_t {
+  uint8_t r, g, b;
+
+  // RGB comparison method
+  bool compare(rgb_t p) {
+    bool status = true;
+    status = status && this->r == p.r;
+    status = status && this->g == p.g;
+    status = status && this->b == p.b;
+    return status;
+  }
+};
 
 class Camera {
 public:
@@ -40,15 +50,21 @@ public:
   // Record Video
   void record();
 
+  // Load and Partition Image Data
+  void load();
+
+  // VGA palette RGB values
+  std::vector<rgb_t> palette;
+
   // Static Constants
 
-  // Height and Width for High Resolution Images
-  static const int HeightHiRes = 2464;
-  static const int WidthHiRes = 3280;
+  // Height and Width for Large Images
+  static const int HeightLarge = 2464;
+  static const int WidthLarge = 3280;
 
-  // Height and Width for Low Resolution Images
-  static const int HeightLowRes = 240;
-  static const int WidthLowRes = 320;
+  // Height and Width for Small Images
+  static const int HeightSmall = 240;
+  static const int WidthSmall = 320;
 
   static const bool Preview = false;
   static const bool Vstab = true;
@@ -56,8 +72,12 @@ public:
   static const int Rotation = 180;
   static const int Quality = 100;
   static const int Sharpness = 100;
+  static const int Bpp = 0;
+  static const int NColours = 255;
 
-  static const std::string Encoding;
+  static const std::string ImageEncoding;
+  static const std::string VideoEncoding;
+  static const std::string VgaPalette;
   static const std::string Exposure;
 
   // Camera Mode

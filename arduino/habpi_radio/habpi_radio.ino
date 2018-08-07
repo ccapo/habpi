@@ -22,8 +22,9 @@
  *
  * Author: Chris Capobianco
  * Date: 2017-06-18
- * Updated: 2018-05-12
+ * Updated: 2018-08-07
  */
+//#include <avr/power.h>
 #include <EEPROM.h>
 #include <SoftwareSerial.h>
 #include <SPI.h>
@@ -31,12 +32,12 @@
 #include <XBee.h>
 
 // SPI Timeout (ms)
-#define SPITIMEOUT        (30000)
+#define SPITIMEOUT        (300000)
 volatile unsigned long spiTimeout = 0;
 
-// Min. Broadcast delay with no retries (ms)
+// Min. Broadcast delay (ms)
 //#define BROADCASTDELAY    (5)
-// Max. Broadcast delay with 15 retries (ms)
+// Max. Broadcast delay with 16 attempts (ms)
 #define BROADCASTDELAY    (80)
 volatile unsigned long broadcastTime = 0;
 
@@ -85,7 +86,7 @@ volatile uint8_t chksum = 0;
 
 // Message size (bytes)
 #define BROADCASTSIZE     (100) // *Not* including checksum
-#define IMAGESIZE         (92)  // *Not* including checksum
+#define IMAGESIZE         (100) // *Not* including checksum
 #define SENSORSIZE        (72)  // *Not* including checksum
 #define BATTERYSIZE       (9)   // Including checksum
 uint8_t sensorData[SENSORSIZE] = {0};
@@ -194,6 +195,8 @@ struct battery_msg_t {
 
 // Setup function
 void setup(void) {
+  //clock_prescale_set( clock_div_2 );
+
   //Serial.begin(115200);
   //pinMode(LED_BUILTIN, OUTPUT);
   //digitalWrite(LED_BUILTIN, LOW);
@@ -269,7 +272,7 @@ void setup(void) {
 // Loop function
 void loop(void) {
   // Read battery voltages after BATTERYDELAY
-  if (abs(millis() - batteryTime) >= BATTERYDELAY) {
+  if (abs(millis() - batteryTime) >= static_cast<unsigned long>(BATTERYDELAY)) {
     batteryTime = millis();
     readBatteryVoltages();
   }
@@ -288,7 +291,7 @@ void normalState() {
   // If data is ready to be processed
   if (dataReady == READY) {
     // Wait for XBee to broadcast message
-    if (abs(millis() - broadcastTime) >= BROADCASTDELAY) {
+    if (abs(millis() - broadcastTime) >= static_cast<unsigned long>(BROADCASTDELAY)) {
       // Send packet to XBee radio for transmission
       //xbee.send(zbTx);
 
@@ -338,7 +341,7 @@ void normalState() {
       spiTimeout = millis();
     }
 
-    if (abs(millis() - spiTimeout) > SPITIMEOUT) {
+    if (abs(millis() - spiTimeout) > static_cast<unsigned long>(SPITIMEOUT)) {
       spiTimeout = millis();
       i = 0;
       chksum = 0;
@@ -356,7 +359,7 @@ void emergencyState() {
 
   if (backupReady == READY) {
     // Wait for XBee to broadcast message
-    if (abs(millis() - broadcastTime) >= BROADCASTDELAY) {
+    if (abs(millis() - broadcastTime) >= static_cast<unsigned long>(BROADCASTDELAY)) {
       // Read sensor data from EEPROM
       EEPROM.get(EEPROMADDRESS, sensorData);
 
@@ -417,7 +420,7 @@ void emergencyState() {
     }
 
     // Read battery voltages after BATTERYDELAY
-    if (abs(millis() - batteryTime) >= BATTERYDELAY) {
+    if (abs(millis() - batteryTime) >= static_cast<unsigned long>(BATTERYDELAY)) {
       batteryTime = millis();
       backupReady = READY;
     }

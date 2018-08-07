@@ -6,7 +6,7 @@ Serializer::Serializer() {}
 // Serializer Destructor
 Serializer::~Serializer() {}
 
-/* Serialize Sensor Message */
+// Serialize Sensor Message
 void Serializer::serialize(sensor_msg_t *msg, uint8_t *data) {
   // Message Type
   uint8_t *p = (uint8_t *)data;
@@ -181,6 +181,15 @@ void Serializer::deserialize(uint8_t *data, image_msg_t *msg) {
   }
 }
 
+// Deserialize Battery Message
+void Serializer::deserialize(uint8_t *data, battery_msg_t *msg) {
+  float *p = (float *)data;
+  msg->bat_rpi = *p;
+  p++;
+  msg->bat_ard = *p;
+  p++;
+}
+
 // Print Sensor Message
 void Serializer::print(sensor_msg_t msg) {
   std::cout << "Type        = 0x" << std::hex << static_cast<uint16_t>(msg.type) << std::dec << std::endl;
@@ -235,3 +244,6 @@ void Serializer::print(image_msg_t msg) {
 
   std::cout << std::endl;
 }
+
+// Initialize static variables
+int Serializer::NChunks = 873;

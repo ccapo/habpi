@@ -4,8 +4,14 @@ spi_bus::spi_bus(): fd(-1), speed(SpiSpeed) {}
 
 spi_bus::spi_bus(const std::string &name): fd(-1), speed(SpiSpeed) {
   fd = ::open(name.c_str(), O_RDWR);
-  ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
-  Module::logger.info("Connected to SPI bus");
+  if (fd == -1) {
+    std::string msg;
+    msg = std::string("Failed to open SPI device ") + name;
+    Module::logger.error(msg.c_str());
+  } else {
+    ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
+    Module::logger.info("Connected to SPI bus");
+  }
 }
 
 spi_bus::spi_bus(const spi_bus &other): fd(-1), speed(SpiSpeed) {
@@ -31,8 +37,10 @@ void spi_bus::open(const std::string &name) {
     std::string msg;
     msg = std::string("Failed to open SPI device ") + name;
     Module::logger.error(msg.c_str());
+  } else {
+    ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
+    Module::logger.info("Connected to SPI bus");
   }
-  Module::logger.info("Connected to SPI bus");
 }
 
 void spi_bus::open_from_fd(int other_fd) {

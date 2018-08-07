@@ -6,7 +6,13 @@
 // Broadcast message parameters
 #define PAYLOADSIZE          (100)
 #define HEADERSIZE           (12)
-#define CHUNKSIZE            (80)
+#define CHUNKSIZE            (88)
+
+// Union to convert four uint8_t to a float
+union floatunion_t {
+  float value;
+  uint8_t data[4];
+};
 
 // Sensor message
 struct sensor_msg_t {
@@ -42,9 +48,6 @@ struct image_msg_t {
 
 // Battery message
 struct battery_msg_t {
-  // Message Type
-  uint8_t type;
-  
   // Battery Data
   float bat_rpi, bat_ard;
 };
@@ -68,6 +71,9 @@ public:
 
   // Deserialize Image Message
   void deserialize(uint8_t *data, image_msg_t *msg);
+
+  // Deserialize Battery Message
+  void deserialize(uint8_t *data, battery_msg_t *msg);
   
   // Print Sensor Message
   void print(sensor_msg_t msg);
@@ -75,11 +81,13 @@ public:
   // Print Image Message
   void print(image_msg_t msg);
 
+  // Number of image chunks
+  static int NChunks;
+
   // Static Constants
-  static const int PayloadSize = PAYLOADSIZE;             // Including checksum
-  static const int BatterySize = 9;                       // Including checksum
-  static const int ImageSize = 1 + sizeof(image_msg_t);   // Including checksum
-  static const int SensorSize = 1 + sizeof(sensor_msg_t); // Including checksum
-  static const int NChunks = 960;
+  static const int PayloadSize = PAYLOADSIZE;               // Including checksum
+  static const int BatterySize = 1 + sizeof(battery_msg_t); // Including checksum
+  static const int ImageSize = 1 + sizeof(image_msg_t);     // Including checksum
+  static const int SensorSize = 1 + sizeof(sensor_msg_t);   // Including checksum
   static const int ChunkSize = CHUNKSIZE;
 };

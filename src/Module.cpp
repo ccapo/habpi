@@ -18,16 +18,16 @@ void Module::startup(const char *dbFileName) {
   database.connect(dbFileName);
 
   // Initialize GPS
-  enableGPS = gps.begin();
+  //enableGPS = gps.begin();
 
   // Initialize Orientation Sensor
-  enableAHRS = ahrs.begin(i2c);
+  //enableAHRS = ahrs.begin(i2c);
   
   // Initialize Temperature and Pressure Sensor Sensor
   enableMPL = mpl.begin(i2c);
 
   // Initialize Temperature and Humidity Sensor
-  enableDHT = dht.begin();
+  //enableDHT = dht.begin();
   
   // Initialize Camera
   enableIMG = camera.begin();
@@ -60,8 +60,8 @@ void Module::broadcastUpdate(std::atomic<bool> &sensorReady, std::atomic<bool> &
   std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
 
   // Initialize battery voltages
-  rpiBattery.value = 0.0;
-  ardBattery.value = 0.0;
+  batteryMsg.bat_rpi = 0.0;
+  batteryMsg.bat_ard = 0.0;
 
   while (isRunning == true) {
     currentTime = std::chrono::steady_clock::now();
@@ -69,16 +69,8 @@ void Module::broadcastUpdate(std::atomic<bool> &sensorReady, std::atomic<bool> &
       prevTime = currentTime;
       cmdStatus = sendSPICommand(BatteryCmd, Serializer::BatterySize, response);
       if (cmdStatus == true) {
-        // Store battery voltages
-        rpiBattery.data[0] = response[0];
-        rpiBattery.data[1] = response[1];
-        rpiBattery.data[2] = response[2];
-        rpiBattery.data[3] = response[3];
-
-        ardBattery.data[0] = response[4];
-        ardBattery.data[1] = response[5];
-        ardBattery.data[2] = response[6];
-        ardBattery.data[3] = response[7];
+        // Deserialize battery message
+        serializer.deserialize(response, &batteryMsg);
 
         // Compute message checksum, and compare with receieved checksum
         uint8_t chksum = checksum(Serializer::BatterySize - 1, response);
@@ -86,14 +78,12 @@ void Module::broadcastUpdate(std::atomic<bool> &sensorReady, std::atomic<bool> &
           // Print battery voltages
           if (receiveStatus == false) {
             receiveStatus = true;
-            //std::cout << "RPi Battery: " << rpiBattery.value << " V, ";
-            //std::cout << "Ard Battery: " << ardBattery.value << " V" << std::endl;
+            //std::cout << "RPi Battery: " << batteryMsg.bat_rpi << " V, ";
+            //std::cout << "Ard Battery: " << batteryMsg.bat_ard << " V" << std::endl;
             std::cout << "Receieved Battery Voltages" << std::endl;
           }
         } else {
           // Received checksum does not match computed checksum
-          rpiBattery.value = 0.0;
-          ardBattery.value = 0.0;
           std::cerr << "Checksum for battery voltages does not match computed checksum:";
           std::cerr << " 0x" << std::hex << static_cast<uint16_t>(chksum);
           std::cerr << " != 0x" << std::hex << static_cast<uint16_t>(response[Serializer::BatterySize]) << std::dec << std::endl;
@@ -108,7 +98,6 @@ void Module::broadcastUpdate(std::atomic<bool> &sensorReady, std::atomic<bool> &
       if (sensorReady == true) {
         cmdStatus = sendSPICommand(SensorCmd, Serializer::SensorSize, response);
         if (cmdStatus == true) {
-          receiveStatus = false;
           sensorAckCounter++;
           std::cout << "Sent sensor data successfully" << std::endl;
         } else {
@@ -118,12 +107,12 @@ void Module::broadcastUpdate(std::atomic<bool> &sensorReady, std::atomic<bool> &
           std::cerr << "Unable to send sensor data" << std::endl;
         }
 
+        receiveStatus = false;
         sensorReady = false;
       } else if (imageReady == true) {
         // Else if we have image data, then send to Arduino
         cmdStatus = sendSPICommand(ImageCmd, Serializer::ImageSize, response);
         if (cmdStatus == true) {
-          receiveStatus = false;
           imageAckCounter++;
           std::cout << "Sent Image Data: " << imageChunkNumber << std::endl;
         } else {
@@ -131,31 +120,19 @@ void Module::broadcastUpdate(std::atomic<bool> &sensorReady, std::atomic<bool> &
           imageNakCounter++;
           logger.error("Unable to send image data");
           std::cerr << "Unable to send image data" << std::endl;
-        }
+        };
 
-        // Increment image chunk counter, then check if we are done
-        // Otherwise load the next image chunk
-        imageChunkNumber++;
-        if (imageChunkNumber >= Serializer::NChunks) {
-          // Reset chunk counter and set imageReady to false
-          imageChunkNumber = 0;
-          imageReady = false;
-        } else {
-          // Load next image chunk
-          imageMsg.img_chunksize = Serializer::ChunkSize;
-          imageMsg.img_id = imageCounter;
-          imageMsg.img_chunk_id = imageChunkNumber;
-          imageMsg.img_nchunks = Serializer::NChunks;
-          imageMsg.img_w = Camera::WidthLowRes;
-          imageMsg.img_h = Camera::HeightLowRes;
-          for (uint8_t i = 0; i < imageMsg.img_chunksize; i++) {
-            imageMsg.img_chunk[i] = static_cast<uint8_t>(i + 1);
-          }
+        // Check if broadcast queue is empty
+        if (!broadcast_queue.empty()) {
+          // Increment image chunk counter
+          imageChunkNumber++;
+
+          // Load next image message from front of broadcast queue
+          imageMsg = broadcast_queue[0];
+          broadcast_queue.erase(broadcast_queue.begin());
 
           // Clear imagePayload message
-          for (uint8_t i = 0; i < Serializer::ImageSize; i++) {
-            imagePayload[i] = 0;
-          }
+          std::memset(imagePayload, 0, Serializer::ImageSize);
 
           // Serialize image message
           serializer.serialize(&imageMsg, imagePayload);
@@ -164,7 +141,13 @@ void Module::broadcastUpdate(std::atomic<bool> &sensorReady, std::atomic<bool> &
           uint8_t chksum = checksum(Serializer::ImageSize - 1, imagePayload);
           //std::cout << "Sent Checksum: 0x" << std::hex << static_cast<uint16_t>(chksum) << std::dec << std::endl;
           imagePayload[Serializer::ImageSize - 1] = chksum;
+        } else {
+          // Reset chunk counter and set imageReady to false
+          imageChunkNumber = 1;
+          imageReady = false;
         }
+
+        receiveStatus = false;
       }
       //usleep(MinDelay);
     }
@@ -300,8 +283,8 @@ void Module::update() {
   }
 
   // Update battery voltage
-  sensorMsg.bat_rpi = rpiBattery.value;
-  sensorMsg.bat_ard = ardBattery.value;
+  sensorMsg.bat_rpi = batteryMsg.bat_rpi;
+  sensorMsg.bat_ard = batteryMsg.bat_ard;
 
   // Insert sensor values into database
 
@@ -333,9 +316,7 @@ void Module::sensorUpdate(std::atomic<bool> &sensorReady) {
       // }
 
       // Clear sensorPayload message
-      for (uint8_t i = 0; i < Serializer::SensorSize; i++) {
-        sensorPayload[i] = 0;
-      }
+      std::memset(sensorPayload, 0, Serializer::SensorSize);
 
       // Serialize sensor message
       serializer.serialize(&sensorMsg, sensorPayload);
@@ -376,23 +357,15 @@ void Module::cameraUpdate(std::atomic<bool> &imageReady) {
 
           // Construct image message if in ImageMode
           if (mode == Camera::ImageMode) {
-            // Load low resolution image from disk, and partition into NChunks
+            // Load thumbnail image from disk, and partition into NChunks
+            camera.load();
 
-            // Populate image message
-            imageMsg.img_chunksize = Serializer::ChunkSize;
-            imageMsg.img_id = ++imageCounter;
-            imageMsg.img_chunk_id = 0;
-            imageMsg.img_nchunks = Serializer::NChunks;
-            imageMsg.img_w = Camera::WidthLowRes;
-            imageMsg.img_h = Camera::HeightLowRes;
-            for (uint8_t i = 0; i < imageMsg.img_chunksize; i++) {
-              imageMsg.img_chunk[i] = static_cast<uint8_t>(i + 1);
-            }
+            // Populate image message with first image message from broadcast queue
+            imageMsg = broadcast_queue[0];
+            broadcast_queue.erase(broadcast_queue.begin());
 
             // Clear imagePayload message
-            for (uint8_t i = 0; i < Serializer::ImageSize; i++) {
-              imagePayload[i] = 0;
-            }
+            std::memset(imagePayload, 0, Serializer::ImageSize);
 
             // Serialize image message
             serializer.serialize(&imageMsg, imagePayload);
@@ -403,10 +376,8 @@ void Module::cameraUpdate(std::atomic<bool> &imageReady) {
             imagePayload[Serializer::ImageSize - 1] = chksum;
 
             prevTime = currentTime;
-            std::cout << "imageLoop: " << imageCounter << std::endl;
+            std::cout << "imageLoop: " << ++imageCounter << std::endl;
             imageReady = true;
-          } else if (mode == Camera::VideoMode) {
-            // Record video
           }
         }
       }
@@ -432,21 +403,21 @@ const std::string Module::SPIPath = "/dev/spidev0.0";
 
 // Initialize static variables
 int Module::imageNumber = 1000000;
-int Module::imageChunkNumber = 0;
+int Module::imageChunkNumber = 1;
 int Module::videoNumber = 1000000;
 bool Module::isRunning = true;
-bool Module::enableGPS = true;
-bool Module::enableAHRS = true;
+bool Module::enableGPS = false;
+bool Module::enableAHRS = false;
 bool Module::enableMPL = true;
-bool Module::enableDHT = true;
+bool Module::enableDHT = false;
 bool Module::enableIMG = true;
 bool Module::recordVideo = false;
 uint8_t Module::sensorPayload[Serializer::SensorSize] = {0}; //"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eu volutpat.";
 uint8_t Module::imagePayload[Serializer::ImageSize] = {0}; //"Lorem ipsum dolor sit amet, consectetur adipiscing elit. In efficitur urna enim, quis metus.";
 sensor_msg_t Module::sensorMsg;
 image_msg_t Module::imageMsg;
-floatunion_t Module::rpiBattery;
-floatunion_t Module::ardBattery;
+battery_msg_t Module::batteryMsg;
+std::vector<image_msg_t> Module::broadcast_queue;
 GPS Module::gps;
 AHRS Module::ahrs;
 MPL3115A2_Unified Module::mpl;

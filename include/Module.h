@@ -14,18 +14,6 @@
 #include "libgpsmm.h"
 #include "Camera.h"
 
-//#define STB_IMAGE_IMPLEMENTATION
-//#include "stb_image.h"
-
-//#define STB_IMAGE_WRITE_IMPLEMENTATION
-//#include "stb_image_write.h"
-
-// Union to convert four uint8_t to a float
-union floatunion_t {
-  float value;
-  uint8_t data[4];
-};
-
 /**
  * Module Class
  */
@@ -60,18 +48,13 @@ public:
   // Video Number
   static int videoNumber;
 
-  // Debugging counters
-  static int sensorCounter, imageCounter;
-  static int sensorAckCounter, imageAckCounter;
-  static int sensorNakCounter, imageNakCounter;
-
-  // Sensor and Image Messages
+  // Sensor, Image and Battery Messages
   static sensor_msg_t sensorMsg;
   static image_msg_t imageMsg;
+  static battery_msg_t batteryMsg;
 
-  // Battery Voltages
-  static floatunion_t rpiBattery;
-  static floatunion_t ardBattery;
+  // Image broadcast queue
+  static std::vector<image_msg_t> broadcast_queue;
 
   // Sensor and Image Payloads
   static uint8_t sensorPayload[Serializer::SensorSize], imagePayload[Serializer::ImageSize];
@@ -88,6 +71,11 @@ public:
   static MPL3115A2_Unified mpl;
   static DHT_Unified dht;
   static Camera camera;
+
+  // Debugging counters
+  static int sensorCounter, imageCounter;
+  static int sensorAckCounter, imageAckCounter;
+  static int sensorNakCounter, imageNakCounter;
 
   // Static Constants
 
